@@ -19,6 +19,7 @@
 
 const request = require('request');
 const requestPromise = require('request-promise-native');
+const SauceLabs = require('saucelabs')
 
 const Acsrf = require('./acsrf');
 const AjaxSpider = require('./ajaxSpider');
@@ -37,6 +38,7 @@ const Openapi = require('./openapi');
 const Params = require('./params');
 const Pnh = require('./pnh');
 const Pscan = require('./pscan');
+const Remote = require('./remote');
 const Replacer = require('./replacer');
 const Reveal = require('./reveal');
 const Script = require('./script');
@@ -58,10 +60,12 @@ function ClientApi(options) {
   const requestOptions = {
     proxy: { ...{ proxy: 'http://127.0.0.1:8080' }, ...options }.proxy,
     method: 'GET',
-    json: true,
-    headers: options.apiKey ? { 'X-ZAP-API-Key': options.apiKey } : {}
+    json: true
   };
   
+  this.apiKey = options.apiKey
+  this.requestOptions = requestOptions
+
   this.req = request.defaults(requestOptions);
   this.reqPromise = requestPromise.defaults(requestOptions);
   this.acsrf = new Acsrf(this);
@@ -81,6 +85,7 @@ function ClientApi(options) {
   this.params = new Params(this);
   this.pnh = new Pnh(this);
   this.pscan = new Pscan(this);
+  this.remote = new Remote(this, BASE);
   this.replacer = new Replacer(this);
   this.reveal = new Reveal(this);
   this.script = new Script(this);
@@ -125,7 +130,8 @@ ClientApi.prototype.request = function (url, parms, callback) {
   }
 
   var options = {
-    url: BASE + url
+    url: BASE + url,
+    headers: this.apiKey ? { 'X-ZAP-API-Key': this.apiKey } : {}
   };
   if (parms) {
     options.qs = parms;
@@ -140,7 +146,8 @@ ClientApi.prototype.requestOther = function (url, parms, callback) {
   }
 
   var options = {
-    url: BASE_OTHER + url
+    url: BASE_OTHER + url,
+    headers: this.apiKey ? { 'X-ZAP-API-Key': this.apiKey } : {}
   };
   if (parms) {
     options.qs = parms;
@@ -151,7 +158,16 @@ ClientApi.prototype.requestOther = function (url, parms, callback) {
 // End Legacy for callbacks.
 
 const makeRequest = function (parms, options) {
-  return this.reqPromise(parms ? { ...options, qs: parms } : options);
+  return this.reqPromise(parms
+    ? {
+      ...{
+        headers: this.apiKey ? { 'X-ZAP-API-Key': this.apiKey } : {},
+        ...options
+      },
+      qs: parms
+    }
+    : options
+  );
 };
 
 

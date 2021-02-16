@@ -1,11 +1,14 @@
 {
-  "name": "zaproxy",
+  "name": "@saucelabs/zaproxy",
   "description": "ZAProxy Client API for Node.js",
   "version": "1.0.1",
   "homepage": "https://github.com/zaproxy/zap-api-nodejs",
   "author": {
     "name": "Kim Carter",
     "email": "services@binarymist.net"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -26,7 +29,8 @@
   },
   "dependencies": {
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.5"
+    "request-promise-native": "^1.0.5",
+    "saucelabs": "^4.6.3"
   },
   "keywords": [
     "zaproxy",
